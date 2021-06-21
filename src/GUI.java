@@ -39,9 +39,10 @@ public class GUI extends JFrame {
 	 * Create the frame.
 	 */
 	public GUI() {
+		Font font = new Font("Segoe UI", Font.PLAIN, 18);
 		setBackground(Color.WHITE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, WIDTH, HEIGHT);
+		setBounds(100, 100, WIDTH + 30, HEIGHT);
 		getContentPane().setLayout(new BorderLayout());
 
 		JLabel lblTitle = new JLabel("Thực hiện bài toán thông qua hình ảnh");
@@ -63,7 +64,7 @@ public class GUI extends JFrame {
 		pnLeft.add(pnSource);
 
 		JLabel lblTitleChooser = new JLabel("File: ");
-		lblTitleChooser.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		lblTitleChooser.setFont(font);
 		pnSource.add(lblTitleChooser);
 
 		JButton btnChooser = new JButton("Choose");
@@ -82,7 +83,7 @@ public class GUI extends JFrame {
 		pnSource.add(btnChooser);
 
 		JLabel lblTitleSource = new JLabel("Ảnh gốc:");
-		lblTitleSource.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		lblTitleSource.setFont(font);
 		lblTitleSource.setPreferredSize(new Dimension(WIDTH, 30));
 		pnLeft.add(lblTitleSource);
 
@@ -106,7 +107,7 @@ public class GUI extends JFrame {
 		pnLeft.add(lblImageSource);
 
 		JLabel lblTitleProcess = new JLabel("Ảnh đã qua xử lí trung gian:");
-		lblTitleProcess.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+		lblTitleProcess.setFont(font);
 		lblTitleProcess.setPreferredSize(new Dimension(WIDTH, 30));
 		pnLeft.add(lblTitleProcess);
 
@@ -131,6 +132,55 @@ public class GUI extends JFrame {
 		JPanel pnRight = new JPanel();
 		pnRight.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pnMain.add(pnRight);
-	}
 
+		JLabel lblTitleCrop = new JLabel("Các kí tự trong ảnh: ");
+		lblTitleCrop.setFont(font);
+		lblTitleCrop.setPreferredSize(new Dimension(WIDTH, 50));
+		pnRight.add(lblTitleCrop);
+
+		JPanel pnCrop = new JPanel();
+		pnCrop.setLayout(new FlowLayout());
+		pnCrop.setBackground(Color.WHITE);
+		pnCrop.setPreferredSize(new Dimension(WIDTH/2 - 10, 60));
+		pnRight.add(pnCrop);
+
+		JPanel pnGrid = new JPanel();
+		pnGrid.setLayout(new GridLayout(4, 2, 0, 10));
+		pnGrid.setPreferredSize(new Dimension(WIDTH/2-10, 120));
+		pnRight.add(pnGrid);
+
+		JLabel lblAlgo = new JLabel("Thuật toán: ");
+		lblAlgo.setFont(font);
+		pnGrid.add(lblAlgo);
+
+		String[] algos = new String[]{"SVM", "Neutron Network", "k-Nearest Neighbor"};
+		JComboBox<String> cbb = new JComboBox<>(algos);
+		cbb.setFont(font);
+		pnGrid.add(cbb);
+
+		JLabel lblAccuracy = new JLabel("Accuracy: ");
+		lblAccuracy.setFont(font);
+		pnGrid.add(lblAccuracy);
+
+		JTextField txtAccuracy = new JTextField();
+		txtAccuracy.setFont(font);
+		txtAccuracy.setEditable(false);
+		pnGrid.add(txtAccuracy);
+
+		JLabel lblCal = new JLabel("Bài toán: ");
+		lblCal.setFont(font);
+		pnGrid.add(lblCal);
+		JTextField txtCal = new JTextField(10);
+		txtCal.setFont(font);
+		txtCal.setEditable(false);
+		pnGrid.add(txtCal);
+
+		JLabel lblResult = new JLabel("Kết quả: ");
+		lblResult.setFont(font);
+		pnGrid.add(lblResult);
+		JTextField txtResult = new JTextField(10);
+		txtResult.setFont(font);
+		txtResult.setEditable(false);
+		pnGrid.add(txtResult);
+	}
 }
