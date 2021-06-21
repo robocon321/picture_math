@@ -1,3 +1,6 @@
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
+
 import java.awt.*;
 
 import javax.imageio.ImageIO;
@@ -15,13 +18,20 @@ import java.util.concurrent.Flow;
 
 public class GUI extends JFrame {
 
-	private JPanel contentPane;
 	private final int WIDTH = 733;
 	private final int HEIGHT = 600;
-	private final int ROW = 30;
+	private JButton btnChooser;
+	private JLabel lblImageSource, lblImageProcess;
+	private JPanel pnCrop;
+	private JTextField txtAccuracy, txtCal, txtResult;
+	private JComboBox<String> cbb;
+	Font font = new Font("Segoe UI", Font.PLAIN, 18);
+	private String path = "image";
+
 	/**
 	 * Launch the application.
 	 */
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -39,12 +49,15 @@ public class GUI extends JFrame {
 	 * Create the frame.
 	 */
 	public GUI() {
-		Font font = new Font("Segoe UI", Font.PLAIN, 18);
 		setBackground(Color.WHITE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, WIDTH + 30, HEIGHT);
 		getContentPane().setLayout(new BorderLayout());
+		initGUI();
+		setEvent();
+	}
 
+	public void initGUI(){
 		JLabel lblTitle = new JLabel("Thực hiện bài toán thông qua hình ảnh");
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 30));
@@ -67,18 +80,7 @@ public class GUI extends JFrame {
 		lblTitleChooser.setFont(font);
 		pnSource.add(lblTitleChooser);
 
-		JButton btnChooser = new JButton("Choose");
-		btnChooser.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JFileChooser chooser = new JFileChooser();
-				int status = chooser.showDialog(getParent(), "Choose file");
-				if(status == JFileChooser.APPROVE_OPTION){
-					File file = chooser.getSelectedFile();
-					System.out.println(file.getPath());
-				}
-			}
-		});
+		btnChooser = new JButton("Choose");
 
 		pnSource.add(btnChooser);
 
@@ -87,23 +89,13 @@ public class GUI extends JFrame {
 		lblTitleSource.setPreferredSize(new Dimension(WIDTH, 30));
 		pnLeft.add(lblTitleSource);
 
-		JLabel lblImageSource = new JLabel();
+
+		lblImageSource = new JLabel();
 		lblImageSource.setSize(new Dimension(250,180));
-		lblImageSource.setBorder(new CompoundBorder(lblImageSource.getBorder(), new EmptyBorder(10,50,10,10)));
+		lblImageSource.setBorder(BorderFactory.createLineBorder(Color.black));
 		pnLeft.add(lblTitleSource);
 
-		// fit image
-
-		BufferedImage imgSource = null;
-		try {
-			imgSource = ImageIO.read(new File("image/toan_1.jpg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Image dimgSource = imgSource.getScaledInstance(lblImageSource.getWidth(), lblImageSource.getHeight(),
-				Image.SCALE_SMOOTH);
-		ImageIcon imageIconSource = new ImageIcon(dimgSource);
-		lblImageSource.setIcon(imageIconSource);
+		lblImageSource.setPreferredSize(new Dimension(lblImageSource.getWidth(), lblImageSource.getHeight()));
 		pnLeft.add(lblImageSource);
 
 		JLabel lblTitleProcess = new JLabel("Ảnh đã qua xử lí trung gian:");
@@ -111,22 +103,10 @@ public class GUI extends JFrame {
 		lblTitleProcess.setPreferredSize(new Dimension(WIDTH, 30));
 		pnLeft.add(lblTitleProcess);
 
-		JLabel lblImageProcess = new JLabel();
+		lblImageProcess = new JLabel();
 		lblImageProcess.setSize(new Dimension(250,180));
-		lblImageProcess.setBorder(new CompoundBorder(lblImageProcess.getBorder(), new EmptyBorder(10,50,10,10)));
-
-		// fit image
-
-		BufferedImage imgProcess = null;
-		try {
-			imgProcess = ImageIO.read(new File("image/toan_2.jpg"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Image dimgProcess = imgProcess.getScaledInstance(lblImageProcess.getWidth(), lblImageProcess.getHeight(),
-				Image.SCALE_SMOOTH);
-		ImageIcon imageIconProcess = new ImageIcon(dimgProcess);
-		lblImageProcess.setIcon(imageIconProcess);
+		lblImageProcess.setPreferredSize(new Dimension(lblImageProcess.getWidth(), lblImageProcess.getHeight()));
+		lblImageProcess.setBorder(BorderFactory.createLineBorder(Color.black));
 		pnLeft.add(lblImageProcess);
 
 		JPanel pnRight = new JPanel();
@@ -138,7 +118,7 @@ public class GUI extends JFrame {
 		lblTitleCrop.setPreferredSize(new Dimension(WIDTH, 50));
 		pnRight.add(lblTitleCrop);
 
-		JPanel pnCrop = new JPanel();
+		pnCrop = new JPanel();
 		pnCrop.setLayout(new FlowLayout());
 		pnCrop.setBackground(Color.WHITE);
 		pnCrop.setPreferredSize(new Dimension(WIDTH/2 - 10, 60));
@@ -154,7 +134,7 @@ public class GUI extends JFrame {
 		pnGrid.add(lblAlgo);
 
 		String[] algos = new String[]{"SVM", "Neutron Network", "k-Nearest Neighbor"};
-		JComboBox<String> cbb = new JComboBox<>(algos);
+		cbb = new JComboBox<>(algos);
 		cbb.setFont(font);
 		pnGrid.add(cbb);
 
@@ -162,7 +142,7 @@ public class GUI extends JFrame {
 		lblAccuracy.setFont(font);
 		pnGrid.add(lblAccuracy);
 
-		JTextField txtAccuracy = new JTextField();
+		txtAccuracy = new JTextField();
 		txtAccuracy.setFont(font);
 		txtAccuracy.setEditable(false);
 		pnGrid.add(txtAccuracy);
@@ -170,7 +150,7 @@ public class GUI extends JFrame {
 		JLabel lblCal = new JLabel("Bài toán: ");
 		lblCal.setFont(font);
 		pnGrid.add(lblCal);
-		JTextField txtCal = new JTextField(10);
+		txtCal = new JTextField(10);
 		txtCal.setFont(font);
 		txtCal.setEditable(false);
 		pnGrid.add(txtCal);
@@ -178,9 +158,63 @@ public class GUI extends JFrame {
 		JLabel lblResult = new JLabel("Kết quả: ");
 		lblResult.setFont(font);
 		pnGrid.add(lblResult);
-		JTextField txtResult = new JTextField(10);
+
+		txtResult = new JTextField(10);
 		txtResult.setFont(font);
 		txtResult.setEditable(false);
 		pnGrid.add(txtResult);
+	}
+
+	public void setEvent(){
+		btnChooser.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser chooser = new JFileChooser(path);
+				int status = chooser.showDialog(getParent(), "Choose file");
+				if(status == JFileChooser.APPROVE_OPTION){
+					File file = chooser.getSelectedFile();
+					path = file.getPath();
+					btnChooser.setText(file.getName());
+					loadImageSource();
+					loadImageProcess();
+				}
+			}
+		});
+	}
+
+	public void loadImageSource(){
+		BufferedImage imgSource = null;
+		try {
+			imgSource = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Image dimgSource = imgSource.getScaledInstance(lblImageSource.getWidth(), lblImageSource.getHeight(),
+				Image.SCALE_SMOOTH);
+		ImageIcon imageIconSource = new ImageIcon(dimgSource);
+		lblImageSource.setIcon(imageIconSource);
+
+		ProcessingImage.getInstance().loadImage(path).
+				buildRangeImage().
+				buildMorph(new Size(3,3), Imgproc.MORPH_RECT, Imgproc.MORPH_DILATE).
+				buildMorph(new Size(7,7), Imgproc.MORPH_ELLIPSE, Imgproc.MORPH_CLOSE).
+				buildMorph(new Size(7,7), Imgproc.MORPH_ELLIPSE, Imgproc.MORPH_CLOSE).
+				buildMorph(new Size(3,3), Imgproc.MORPH_ELLIPSE, Imgproc.MORPH_ERODE).
+				buildBlur(7).
+				save();
+	}
+
+	public void loadImageProcess(){
+		BufferedImage imgProcess = null;
+		try {
+			imgProcess = ImageIO.read(new File("process/result.jpg"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Image dimgProcess = imgProcess.getScaledInstance(lblImageProcess.getWidth(), lblImageProcess.getHeight(),
+				Image.SCALE_SMOOTH);
+		ImageIcon imageIconProcess = new ImageIcon(dimgProcess);
+		lblImageProcess.setIcon(imageIconProcess);
+
 	}
 }
