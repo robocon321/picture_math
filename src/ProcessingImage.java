@@ -65,6 +65,20 @@ public class ProcessingImage {
         return rects;
     }
 
+    public Mat drawBoundNumber(){
+        Mat result = new Mat();
+        List<Rect> rects = boundSymbol();
+        Imgproc.cvtColor(mat, result, Imgproc.COLOR_GRAY2BGR);
+        for(Rect rect : rects){
+            Imgproc.rectangle(result, rect, new Scalar(0,0,255), 3);
+        }
+        return result;
+    }
+
+    public void saveBound(){
+        Imgcodecs.imwrite("bound/bound.jpg", drawBoundNumber());
+    }
+
     public void cropImage(Rect rect, String nameFile) {
         Mat cropImage = src.submat(rect);
         Mat resizeImage = new Mat();
@@ -82,8 +96,5 @@ public class ProcessingImage {
 
     public Mat getSrc(){
         return src;
-    }
-
-    public static void main(String[] args) {
     }
 }

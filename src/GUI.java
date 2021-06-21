@@ -21,7 +21,7 @@ public class GUI extends JFrame {
 	private final int WIDTH = 733;
 	private final int HEIGHT = 600;
 	private JButton btnChooser;
-	private JLabel lblImageSource, lblImageProcess;
+	private JLabel lblImageSource, lblImageProcess, lblImageBoundNumber;
 	private JPanel pnCrop;
 	private JTextField txtAccuracy, txtCal, txtResult;
 	private JComboBox<String> cbb;
@@ -89,7 +89,6 @@ public class GUI extends JFrame {
 		lblTitleSource.setPreferredSize(new Dimension(WIDTH, 30));
 		pnLeft.add(lblTitleSource);
 
-
 		lblImageSource = new JLabel();
 		lblImageSource.setSize(new Dimension(250,180));
 		lblImageSource.setBorder(BorderFactory.createLineBorder(Color.black));
@@ -112,6 +111,22 @@ public class GUI extends JFrame {
 		JPanel pnRight = new JPanel();
 		pnRight.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pnMain.add(pnRight);
+
+		JPanel pnEmpty = new JPanel();
+		pnEmpty.setLayout(new FlowLayout(FlowLayout.LEFT));
+		pnEmpty.setPreferredSize(new Dimension(WIDTH, 35));
+		pnRight.add(pnEmpty);
+
+		JLabel lblTitleBoundNumber = new JLabel("Xác định các kí tự:");
+		lblTitleBoundNumber.setFont(font);
+		lblTitleBoundNumber.setPreferredSize(new Dimension(WIDTH, 30));
+		pnRight.add(lblTitleBoundNumber);
+
+		lblImageBoundNumber = new JLabel();
+		lblImageBoundNumber.setSize(new Dimension(250,180));
+		lblImageBoundNumber.setPreferredSize(new Dimension(lblImageBoundNumber.getWidth(), lblImageBoundNumber.getHeight()));
+		lblImageBoundNumber.setBorder(BorderFactory.createLineBorder(Color.black));
+		pnRight.add(lblImageBoundNumber);
 
 		JLabel lblTitleCrop = new JLabel("Các kí tự trong ảnh: ");
 		lblTitleCrop.setFont(font);
@@ -177,6 +192,7 @@ public class GUI extends JFrame {
 					btnChooser.setText(file.getName());
 					loadImageSource();
 					loadImageProcess();
+					loadImageBoundNumber();
 				}
 			}
 		});
@@ -193,7 +209,9 @@ public class GUI extends JFrame {
 				Image.SCALE_SMOOTH);
 		ImageIcon imageIconSource = new ImageIcon(dimgSource);
 		lblImageSource.setIcon(imageIconSource);
+	}
 
+	public void loadImageProcess(){
 		ProcessingImage.getInstance().loadImage(path).
 				buildRangeImage().
 				buildMorph(new Size(3,3), Imgproc.MORPH_RECT, Imgproc.MORPH_DILATE).
@@ -202,9 +220,7 @@ public class GUI extends JFrame {
 				buildMorph(new Size(3,3), Imgproc.MORPH_ELLIPSE, Imgproc.MORPH_ERODE).
 				buildBlur(7).
 				save();
-	}
 
-	public void loadImageProcess(){
 		BufferedImage imgProcess = null;
 		try {
 			imgProcess = ImageIO.read(new File("process/result.jpg"));
@@ -215,6 +231,20 @@ public class GUI extends JFrame {
 				Image.SCALE_SMOOTH);
 		ImageIcon imageIconProcess = new ImageIcon(dimgProcess);
 		lblImageProcess.setIcon(imageIconProcess);
-
 	}
+
+	public void loadImageBoundNumber(){
+		ProcessingImage.getInstance().saveBound();
+		BufferedImage imgBound = null;
+		try {
+			imgBound = ImageIO.read(new File("bound/bound.jpg"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		Image dimgBound = imgBound.getScaledInstance(lblImageBoundNumber.getWidth(), lblImageBoundNumber.getHeight(),
+				Image.SCALE_SMOOTH);
+		ImageIcon imageIconBound = new ImageIcon(dimgBound);
+		lblImageBoundNumber.setIcon(imageIconBound);
+	}
+
 }
