@@ -1,9 +1,11 @@
 import org.opencv.core.*;
-import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import java.awt.Dimension;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ProcessingImage {
@@ -62,15 +64,69 @@ public class ProcessingImage {
                 rect = null;
             }
         }
-        return rects;
+        
+        // Resize bound
+        List<Rect> results = new ArrayList<>();
+        for(Rect r : rects) {
+        	Dimension d = getDimension(r);
+        	int w = d.width;
+        	int h = d.height;
+        	if (w / h > 3) {
+        		results.add(new Rect(new Point(r.tl().x, r.tl().y + h/2 - w/2), new Point(r.br().x, r.br().y - h/2 + w/2)));
+        	} else if(h / w > 3) {
+        		results.add(new Rect(new Point(r.tl().x + w/2 - h/2, r.tl().y), new Point(r.br().x - w/2 + h/2, r.br().y)));
+        	} else {
+        		results.add(r);
+        	}
+        }
+        
+        // Find sign =
+//        List<Point> pos = new ArrayList<>();
+//        for(int i = 0; i < results.size() - 1; i++) {
+//        	for(int j = i + 1; j < results.size(); j++) {
+//        		System.out.println(isContain(results.get(i), results.get(j)));
+//        		if(isContain(results.get(i), results.get(j))) pos.add(new Point(i, j));
+//        	}
+//        }
+//        
+//        for(Point p : pos) {
+//        	Rect r1 = results.get((int) p.x);
+//        	Rect r2 = results.get((int) p.y);
+//        	
+//        	double xTL = r1.tl().x - r2.tl().x < 0 ? r1.tl().x : r2.tl().x;
+//        	double yTL = r1.tl().y - r2.tl().y < 0 ? r1.tl().y : r2.tl().y;
+//        	double xBR = r1.br().x - r2.br().x > 0 ? r1.tl().x : r2.tl().x;
+//        	double yBR = r1.br().y - r2.br().y > 0 ? r1.tl().y : r2.tl().y;
+//        	
+//        	results.add(new Rect(new Point(xTL, yTL), new Point(xBR, yBR)));
+//        	
+//        	results.remove(r1);
+//        	results.remove(r2);
+//        }
+        
+        return results;
+    }
+    
+    public Dimension getDimension(Rect r) {
+    	return new Dimension((int)(r.br().x - r.tl().x), (int) (r.br().y - r.tl().y));
+    }
+    
+    public boolean isContain(Rect r1, Rect r2) {
+    	return false;
     }
 
     public Mat drawBoundNumber(){
+    	// Clear file
+    	File f = new File("output");
+    	for(File child : f.listFiles()) child.delete();
+    	
+    	// Save file
         Mat result = new Mat();
         List<Rect> rects = boundSymbol();
         Imgproc.cvtColor(mat, result, Imgproc.COLOR_GRAY2BGR);
         for(Rect rect : rects){
-            Imgproc.rectangle(result, rect, new Scalar(0,0,255), 3);
+            Imgproc.rectangle(result, rect.tl(), rect.br(), new Scalar(0,0,255), 3);
+            cropImage(rect, "output/"+new Date().getTime()+".jpg");
         }
         return result;
     }
@@ -80,10 +136,15 @@ public class ProcessingImage {
     }
 
     public void cropImage(Rect rect, String nameFile) {
-        Mat cropImage = src.submat(rect);
-        Mat resizeImage = new Mat();
-        Imgproc.resize(cropImage, resizeImage, new Size(45, 45));
-        Imgcodecs.imwrite(nameFile, resizeImage);
+    	try {
+			Thread.sleep(100);
+	        Mat cropImage = mat.submat(rect);
+	        Mat resizeImage = new Mat();
+	        Imgproc.resize(cropImage, resizeImage, new Size(45, 45));
+	        Imgcodecs.imwrite(nameFile, resizeImage);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     }
 
     public void save(){
