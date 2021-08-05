@@ -66,43 +66,45 @@ public class ProcessingImage {
         }
         
         // Resize bound
-        List<Rect> results = new ArrayList<>();
+        List<Rect> temp = new ArrayList<>();
         for(Rect r : rects) {
         	Dimension d = getDimension(r);
         	int w = d.width;
         	int h = d.height;
         	if (w / h > 3) {
-        		results.add(new Rect(new Point(r.tl().x, r.tl().y + h/2 - w/2), new Point(r.br().x, r.br().y - h/2 + w/2)));
+        		temp.add(new Rect(new Point(r.tl().x, r.tl().y + h/2 - w/2), new Point(r.br().x, r.br().y - h/2 + w/2)));
         	} else if(h / w > 3) {
-        		results.add(new Rect(new Point(r.tl().x + w/2 - h/2, r.tl().y), new Point(r.br().x - w/2 + h/2, r.br().y)));
+        		temp.add(new Rect(new Point(r.tl().x + w/2 - h/4, r.tl().y), new Point(r.br().x - w/2 + h/4, r.br().y)));
         	} else {
-        		results.add(r);
+        		temp.add(r);
         	}
         }
         
         // Find sign =
-//        List<Point> pos = new ArrayList<>();
-//        for(int i = 0; i < results.size() - 1; i++) {
-//        	for(int j = i + 1; j < results.size(); j++) {
-//        		System.out.println(isContain(results.get(i), results.get(j)));
-//        		if(isContain(results.get(i), results.get(j))) pos.add(new Point(i, j));
-//        	}
-//        }
-//        
-//        for(Point p : pos) {
-//        	Rect r1 = results.get((int) p.x);
-//        	Rect r2 = results.get((int) p.y);
-//        	
-//        	double xTL = r1.tl().x - r2.tl().x < 0 ? r1.tl().x : r2.tl().x;
-//        	double yTL = r1.tl().y - r2.tl().y < 0 ? r1.tl().y : r2.tl().y;
-//        	double xBR = r1.br().x - r2.br().x > 0 ? r1.tl().x : r2.tl().x;
-//        	double yBR = r1.br().y - r2.br().y > 0 ? r1.tl().y : r2.tl().y;
-//        	
-//        	results.add(new Rect(new Point(xTL, yTL), new Point(xBR, yBR)));
-//        	
-//        	results.remove(r1);
-//        	results.remove(r2);
-//        }
+        List<Point> pos = new ArrayList<>();
+        for(int i = 0; i < temp.size() - 1; i++) {
+        	for(int j = i + 1; j < temp.size(); j++) {
+        		if(isOverlap(temp.get(i), temp.get(j))) pos.add(new Point(i, j));
+        	}
+        }
+        
+        List<Rect> results = new ArrayList<Rect>();
+        for(Rect r : temp) results.add(r.clone());
+
+        for(Point p : pos) {
+        	Rect r1 = temp.get((int) p.x);
+        	Rect r2 = temp.get((int) p.y);
+        	
+        	double xTL = r1.tl().x - r2.tl().x < 0 ? r1.tl().x : r2.tl().x;
+        	double yTL = r1.tl().y - r2.tl().y < 0 ? r1.tl().y : r2.tl().y;
+        	double xBR = r1.br().x - r2.br().x > 0 ? r1.br().x : r2.br().x;
+        	double yBR = r1.br().y - r2.br().y > 0 ? r1.br().y : r2.br().y;
+        	
+        	results.add(new Rect(new Point(xTL, yTL), new Point(xBR, yBR)));
+        	
+        	results.remove(r1);
+        	results.remove(r2);
+        }
         
         return results;
     }
@@ -111,8 +113,25 @@ public class ProcessingImage {
     	return new Dimension((int)(r.br().x - r.tl().x), (int) (r.br().y - r.tl().y));
     }
     
-    public boolean isContain(Rect r1, Rect r2) {
-    	return false;
+    public boolean isOverlap(Rect r1, Rect r2) {
+    	boolean result = false;
+    	
+    	// 4 peak r2
+    	Point p1 = r2.tl();
+    	Point p2 = r2.br();
+    	Point p3 = new Point(p2.x, p1.y);
+    	Point p4 = new Point(p1.x, p2.y);
+    	
+    	result = isPointInnerRectangle(r1, p1) || 
+    			 isPointInnerRectangle(r1, p2) || 
+    			 isPointInnerRectangle(r1, p3) || 
+    			 isPointInnerRectangle(r1, p4);
+    	
+    	return result;
+    }
+    
+    public boolean isPointInnerRectangle(Rect r, Point p) {
+    	return ( r.tl().x < p.x && p.x < r.br().x ) && ( r.tl().y < p.y && p.y < r.br().y );
     }
 
     public Mat drawBoundNumber(){
