@@ -2,10 +2,13 @@ package image;
 
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import utils.Constant;
 import weka.core.DenseInstance;
 import weka.core.Instances;
 
@@ -19,13 +22,23 @@ public class ConvertImage {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		Mat mat = Imgcodecs.imread(path);
 		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY);
-		Imgproc.threshold(mat, mat, 100, 255, Imgproc.THRESH_BINARY);
-		double[] result = new double[mat.rows()*mat.cols()];
-		for(int i=0;i<mat.rows();i++) {
-			for(int j=0;j<mat.cols();j++) {
-				result[i*mat.cols() + j] = mat.get(i, j)[0];
+		Imgproc.threshold(mat, mat, 100, 1, Imgproc.THRESH_BINARY);
+				
+		double[] result = new double[Constant.HEIGHT_IMG * Constant.WIDTH_IMG];
+		int index = 0;
+		int sumArea = 0;
+		
+		for(int m=0; m < Constant.HEIGHT_IMG; m++) {
+			for(int n=0; n < Constant.WIDTH_IMG; n++) {
+				for(int i=0; i < 45 / Constant.WIDTH_IMG; i++) {
+					for(int j=0; j < 45 / Constant.HEIGHT_IMG; j++) {
+						sumArea += mat.get(n*(45 / Constant.WIDTH_IMG) + j, m*(45 / Constant.HEIGHT_IMG) + i)[0];
+					}
+				}
+				result[index] = sumArea*Math.pow(index, 2);
+				index++;
+				sumArea = 0;
 			}
-			System.out.println();
 		}
 		
 		return result;

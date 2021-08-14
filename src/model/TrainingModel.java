@@ -9,10 +9,21 @@ import utils.Constant;
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ArffSaver;
+import weka.core.converters.ConverterUtils.DataSource;
 
 public class TrainingModel {
-	public static void main(String[] args) throws IOException {
-//		saverDataTrainToArff();
+	public static void main(String[] args) throws Exception {
+		saverDataTrainToArff();
+//		long start = System.currentTimeMillis();
+//		
+//		Model model = new MultiPerceptronModel();
+//		Instances ins = DataSource.read("dataset.arff");
+//		ins.setClassIndex(ins.numAttributes() - 1);
+//		model.excute(ins);
+//		
+//		long end = System.currentTimeMillis();
+//		
+//		System.out.println(((end - start) / 1000) + "s");
 	}
 	
 	public static void saverDataTrainToArff() throws IOException {
@@ -43,7 +54,7 @@ public class TrainingModel {
 		
 		
 		ArffSaver saver = new ArffSaver();
-		saver.setFile(new File("aaa.arff"));
+		saver.setFile(new File("dataset.arff"));
 		saver.setInstances(ins);
 		saver.writeBatch();		
 	}

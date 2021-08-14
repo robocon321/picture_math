@@ -3,9 +3,9 @@ import weka.classifiers.functions.MultilayerPerceptron;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 
-public class MultiPerceptronModel implements BuildModel{
+public class MultiPerceptronModel implements Model{
 
-	private Object buildModel(Instances instances) {
+	private Object buildModel(Instances instances) {		
 		MultilayerPerceptron model = new MultilayerPerceptron();
 		try {
 			model.buildClassifier(instances);
@@ -18,7 +18,7 @@ public class MultiPerceptronModel implements BuildModel{
 	private void saveModelToPath(Object model) {
 		SerializationHelper s = new SerializationHelper();
 		try {
-			s.write("perceptron_model.txt", model);
+			s.write("model/perceptron_model.txt", model);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
