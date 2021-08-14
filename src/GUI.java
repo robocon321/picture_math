@@ -1,6 +1,8 @@
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import image.ProcessingImage;
+
 import java.awt.*;
 
 import javax.imageio.ImageIO;
