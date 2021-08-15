@@ -1,7 +1,14 @@
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import dataset.BuildDataset;
 import image.ProcessingImage;
+import model.Model;
+import model.MultiPerceptronModel;
+import utils.Constant;
+import weka.core.Instances;
+import weka.core.SerializationHelper;
+import weka.core.converters.ArffLoader;
 
 import java.awt.*;
 
@@ -13,6 +20,8 @@ import javax.swing.border.EmptyBorder;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -20,13 +29,15 @@ import java.util.concurrent.Flow;
 
 public class GUI extends JFrame {
 
-	private final int WIDTH = 733;
-	private final int HEIGHT = 600;
+	private final int WIDTH = 900;
+	private final int HEIGHT = 800;
 	private JButton btnChooser;
 	private JLabel lblImageSource, lblImageProcess, lblImageBoundNumber;
 	private JPanel pnCrop;
 	private JTextField txtAccuracy, txtCal, txtResult;
 	private JComboBox<String> cbb;
+	private TextArea txtConsole;
+	
 	Font font = new Font("Segoe UI", Font.PLAIN, 18);
 	private String path = "image";
 
@@ -64,7 +75,15 @@ public class GUI extends JFrame {
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 30));
 		getContentPane().add(lblTitle, BorderLayout.NORTH);
-
+		
+		txtConsole = new TextArea("Hello everybody. My name is Console. I hope that I can support you \n");
+		txtConsole.setEditable(false);
+		txtConsole.setBackground(Color.WHITE);
+        JScrollPane scrollConsole = new JScrollPane(txtConsole,
+                JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        getContentPane().add(scrollConsole, BorderLayout.SOUTH);
+		
 		JPanel pnMain = new JPanel();
 		pnMain.setLayout(new GridLayout(1, 2));
 		getContentPane().add(pnMain, BorderLayout.CENTER);
@@ -150,7 +169,7 @@ public class GUI extends JFrame {
 		lblAlgo.setFont(font);
 		pnGrid.add(lblAlgo);
 
-		String[] algos = new String[]{"SVM", "Neutron Network", "k-Nearest Neighbor"};
+		String[] algos = new String[]{"SimpleLogistic", "MultiLayer Perceptron", "SVM", "k-Nearest Neighbor"};
 		cbb = new JComboBox<>(algos);
 		cbb.setFont(font);
 		pnGrid.add(cbb);
@@ -198,6 +217,97 @@ public class GUI extends JFrame {
 				}
 			}
 		});
+		
+		cbb.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {				
+				if(e.getStateChange() == e.SELECTED) {
+					long start = 0;
+					long end = 0;
+					// Train dataset
+					File trainDataset = new File(Constant.PATH.TRAIN_DATASET);
+					if(!trainDataset.exists()) {
+						txtConsole.setText(txtConsole.getText() + "You don't have train dataset, the system will load train dataset \nLoading... \n");
+
+						start = System.currentTimeMillis();
+						try {
+							BuildDataset.buildDataset(Constant.PATH.TRAIN_IMAGE, Constant.PATH.TRAIN_DATASET);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+						end = System.currentTimeMillis();
+						
+						txtConsole.setText(txtConsole.getText() + "Build train dataset: " + (end - start)/1000 +"s \n");
+					}
+
+					// Test dataset
+					File testDataset = new File(Constant.PATH.TEST_DATASET);
+					if(!testDataset.exists()) {
+						txtConsole.setText(txtConsole.getText() + "You don't have test dataset, the system will load test dataset \nLoading... \n");
+
+						start = System.currentTimeMillis();
+						try {
+							BuildDataset.buildDataset(Constant.PATH.TEST_IMAGE, Constant.PATH.TEST_DATASET);
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						}
+						end = System.currentTimeMillis();
+						
+						txtConsole.setText(txtConsole.getText() + "Build test dataset: " + (end - start)/1000 +"s \n");
+					}
+					
+					// Build loader train and test
+					ArffLoader trainLoader = new ArffLoader();
+					try {
+						trainLoader.setFile(new File(Constant.PATH.TRAIN_DATASET));
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					
+					ArffLoader testLoader = new ArffLoader();
+					try {
+						trainLoader.setFile(new File(Constant.PATH.TEST_DATASET));
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+
+					
+					Model model;
+					SerializationHelper helper = new SerializationHelper();
+					
+					switch (e.getStateChange()) {
+					case 0: {
+						txtConsole.setText(txtConsole.getText() + "Nothing. \n");
+						break;
+					}
+					case 1: {
+						File file = new File(Constant.MODEL.PERCEPTRON);
+						if(!file.exists()) {
+							model = new MultiPerceptronModel();
+						} else {
+							try {
+								model = (Model) helper.read(Constant.MODEL.PERCEPTRON);
+							} catch (Exception e1) {
+								e1.printStackTrace();
+							}
+						}
+						break;
+					}
+					case 2: {
+						txtConsole.setText(txtConsole.getText() + "Nothing. \n");
+						break;
+					}
+					case 3: {
+						txtConsole.setText(txtConsole.getText() + "Nothing. \n");
+						break;
+					}
+					default:
+						throw new IllegalArgumentException("Unexpected value: " + e.getStateChange());
+					}						
+				}
+			}
+		});
 	}
 
 	public void loadImageSource(){
@@ -215,13 +325,14 @@ public class GUI extends JFrame {
 
 	public void loadImageProcess(){
 		ProcessingImage.getInstance().loadImage(path).
-				buildRangeImage().
-				buildMorph(new Size(3,3), Imgproc.MORPH_RECT, Imgproc.MORPH_DILATE).
-				buildMorph(new Size(7,7), Imgproc.MORPH_ELLIPSE, Imgproc.MORPH_CLOSE).
-				buildMorph(new Size(7,7), Imgproc.MORPH_ELLIPSE, Imgproc.MORPH_CLOSE).
-				buildMorph(new Size(3,3), Imgproc.MORPH_ELLIPSE, Imgproc.MORPH_ERODE).
-				buildBlur(7).
-				save();
+//				buildRangeImage().
+//				buildMorph(new Size(3,3), Imgproc.MORPH_RECT, Imgproc.MORPH_DILATE).
+//				buildMorph(new Size(7,7), Imgproc.MORPH_ELLIPSE, Imgproc.MORPH_CLOSE).
+//				buildMorph(new Size(7,7), Imgproc.MORPH_ELLIPSE, Imgproc.MORPH_CLOSE).
+//				buildMorph(new Size(3,3), Imgproc.MORPH_ELLIPSE, Imgproc.MORPH_ERODE).
+//				buildBlur(7).
+		buildRangeImage().
+		save();
 
 		BufferedImage imgProcess = null;
 		try {

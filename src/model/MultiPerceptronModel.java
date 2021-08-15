@@ -1,4 +1,5 @@
 package model;
+import utils.Constant;
 import weka.classifiers.functions.MultilayerPerceptron;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
@@ -18,7 +19,7 @@ public class MultiPerceptronModel implements Model{
 	private void saveModelToPath(Object model) {
 		SerializationHelper s = new SerializationHelper();
 		try {
-			s.write("model/perceptron_model.txt", model);
+			s.write(Constant.MODEL.PERCEPTRON, model);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		

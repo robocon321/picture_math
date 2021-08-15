@@ -4,9 +4,14 @@ import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import utils.Constant;
+import utils.Constant.PATH;
+
 import java.awt.Dimension;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -26,9 +31,10 @@ public class ProcessingImage {
         src = mat.clone();
         return this;
     }
-
+    
     public ProcessingImage buildRangeImage(){
-        Core.inRange(mat, new Scalar(109, 81, 37), new Scalar(163, 198, 164), mat);
+//        Core.inRange(mat, new Scalar(109, 81, 37), new Scalar(163, 198, 164), mat);
+    	Core.inRange(mat, new Scalar(0, 0, 0), new Scalar(100, 100, 100), mat);
         return this;
     }
 
@@ -42,7 +48,7 @@ public class ProcessingImage {
         Imgproc.threshold(mat, mat, min, max, Imgproc.THRESH_BINARY);
         return this;
     }
-
+    
     public ProcessingImage buildBlur(int size){
         Imgproc.medianBlur(mat, mat, size);
         return this;
@@ -107,7 +113,7 @@ public class ProcessingImage {
         	results.remove(r1);
         	results.remove(r2);
         }
-        
+                
         return results;
     }
     
@@ -117,17 +123,28 @@ public class ProcessingImage {
     
     public boolean isOverlap(Rect r1, Rect r2) {
     	boolean result = false;
+
+    	// 4 peak r1
+    	Point p11 = r1.tl();
+    	Point p12 = r1.br();
+    	Point p13 = new Point(p12.x, p11.y);
+    	Point p14 = new Point(p11.x, p12.y);
     	
     	// 4 peak r2
-    	Point p1 = r2.tl();
-    	Point p2 = r2.br();
-    	Point p3 = new Point(p2.x, p1.y);
-    	Point p4 = new Point(p1.x, p2.y);
+    	Point p21 = r2.tl();
+    	Point p22 = r2.br();
+    	Point p23 = new Point(p22.x, p21.y);
+    	Point p24 = new Point(p21.x, p22.y);
+
     	
-    	result = isPointInnerRectangle(r1, p1) || 
-    			 isPointInnerRectangle(r1, p2) || 
-    			 isPointInnerRectangle(r1, p3) || 
-    			 isPointInnerRectangle(r1, p4);
+    	result = isPointInnerRectangle(r1, p21) || 
+    			 isPointInnerRectangle(r1, p22) || 
+    			 isPointInnerRectangle(r1, p23) || 
+    			 isPointInnerRectangle(r1, p24) ||
+    			 isPointInnerRectangle(r2, p11) || 
+    			 isPointInnerRectangle(r2, p12) || 
+    			 isPointInnerRectangle(r2, p13) || 
+    			 isPointInnerRectangle(r2, p14);
     	
     	return result;
     }
@@ -138,7 +155,7 @@ public class ProcessingImage {
 
     public Mat drawBoundNumber(){
     	// Clear file
-    	File f = new File("output");
+    	File f = new File(Constant.PATH.OUTPUT);
     	for(File child : f.listFiles()) child.delete();
     	
     	// Save file
@@ -147,13 +164,13 @@ public class ProcessingImage {
         Imgproc.cvtColor(mat, result, Imgproc.COLOR_GRAY2BGR);
         for(Rect rect : rects){
             Imgproc.rectangle(result, rect.tl(), rect.br(), new Scalar(0,0,255), 3);
-            cropImage(rect, "output/"+new Date().getTime()+".jpg");
+            cropImage(rect, Constant.PATH.OUTPUT + "/"+new Date().getTime()+".jpg");
         }
         return result;
     }
 
     public void saveBound(){
-        Imgcodecs.imwrite("bound/bound.jpg", drawBoundNumber());
+        Imgcodecs.imwrite(PATH.BOUND, drawBoundNumber());
     }
 
     public void cropImage(Rect rect, String nameFile) {
@@ -162,6 +179,7 @@ public class ProcessingImage {
 	        Mat cropImage = mat.submat(rect);
 	        Mat resizeImage = new Mat();
 	        Imgproc.resize(cropImage, resizeImage, new Size(45, 45));
+	        Core.bitwise_not(resizeImage, resizeImage);
 	        Imgcodecs.imwrite(nameFile, resizeImage);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -169,7 +187,7 @@ public class ProcessingImage {
     }
 
     public void save(){
-        Imgcodecs.imwrite("process/result.jpg", mat);
+        Imgcodecs.imwrite(PATH.RESULT, mat);
     }
 
     public Mat getDes() {
