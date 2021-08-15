@@ -113,7 +113,12 @@ public class ProcessingImage {
         	results.remove(r1);
         	results.remove(r2);
         }
-                
+        Collections.sort(results, new Comparator<Rect>() {
+        	@Override
+        	public int compare(Rect o1, Rect o2) {
+        		return (int) (o1.tl().x - o2.tl().x);
+        	}
+        });
         return results;
     }
     

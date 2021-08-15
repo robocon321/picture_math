@@ -7,7 +7,11 @@ public class Constant {
 	}
 	
 	public static class MODEL {
-		public static String PERCEPTRON = "model/perceptron";
+		public static String PERCEPTRON = "model/perceptron.txt";
+	}
+	
+	public static class EVALUATION {
+		public static String PERCEPTRON = "evaluation/perceptron.txt";
 	}
 	
 	public static class PATH {

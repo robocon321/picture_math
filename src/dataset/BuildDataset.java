@@ -30,7 +30,7 @@ public class BuildDataset {
 		// add values attribute class
 		ArrayList<String> classValues = new ArrayList<>();
 		
-		File data = new File(Constant.PATH.TRAIN_IMAGE);
+		File data = new File(input);
 		for(File f : data.listFiles()) {
 			classValues.add(f.getName());
 		}
@@ -47,7 +47,7 @@ public class BuildDataset {
 		
 		
 		ArffSaver saver = new ArffSaver();
-		saver.setFile(new File(Constant.PATH.TRAIN_DATASET));
+		saver.setFile(new File(output));
 		saver.setInstances(ins);
 		saver.writeBatch();		
 	}
