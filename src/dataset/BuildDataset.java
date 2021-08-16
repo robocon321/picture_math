@@ -16,16 +16,10 @@ public class BuildDataset {
 		// Add attribute
 		ArrayList<Attribute> attrs = new ArrayList<>();
 		Attribute attr;
-		for(int i=0; i < Constant.SIZE.HEIGHT_IMG * Constant.SIZE.WIDTH_IMG; i++) {
+		for(int i=0; i < Constant.SIZE.HEIGHT_IMG * Constant.SIZE.WIDTH_IMG + 3; i++) {
 			attr = new  Attribute("attr"+i);
 			attrs.add(attr);
 		}
-		attr = new  Attribute("border");
-		attrs.add(attr);
-		attr = new  Attribute("cross");
-		attrs.add(attr);
-		attr = new  Attribute("plus");
-		attrs.add(attr);
 		
 		// add values attribute class
 		ArrayList<String> classValues = new ArrayList<>();

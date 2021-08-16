@@ -26,14 +26,12 @@ public class ConvertImage {
 	public ConvertImage(String path) { 
 		this.path = path;
 	}
-	private double[] imageToArray() {
+ 	private double[] imageToArray() {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		Mat mat = Imgcodecs.imread(path);
 		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY);
 		Imgproc.threshold(mat, mat, 100, 1, Imgproc.THRESH_BINARY);
 		
-		Core.bitwise_not(mat, mat);
-				
 		double[] result = new double[Constant.SIZE.HEIGHT_IMG * Constant.SIZE.WIDTH_IMG + 3];
 		int index = 0;
 		int sumArea = 0;
@@ -43,35 +41,36 @@ public class ConvertImage {
 		
 		for(int m=0; m < Constant.SIZE.HEIGHT_IMG; m++) {
 			for(int n=0; n < Constant.SIZE.WIDTH_IMG; n++) {
-				for(int i=0; i < 45 / Constant.SIZE.WIDTH_IMG; i++) {
-					for(int j=0; j < 45 / Constant.SIZE.HEIGHT_IMG; j++) {						
-						sumArea += mat.get(n*(45 / Constant.SIZE.WIDTH_IMG) + j, m*(45 / Constant.SIZE.HEIGHT_IMG) + i)[0];
+				for(int i=0; i < 45 / Constant.SIZE.HEIGHT_IMG; i++) {
+					for(int j=0; j < 45 / Constant.SIZE.WIDTH_IMG; j++) {
+						double k = mat.get(n*(45 / Constant.SIZE.WIDTH_IMG) + j, m*(45 / Constant.SIZE.HEIGHT_IMG) + i)[0] == 1 ? 0 : 1;
+						sumArea += k;
 						if(m == 0 || n == 0 || m == Constant.SIZE.HEIGHT_IMG - 1 || n == Constant.SIZE.WIDTH_IMG - 1) {
-							border += mat.get(n*(45 / Constant.SIZE.WIDTH_IMG) + j, m*(45 / Constant.SIZE.HEIGHT_IMG) + i)[0];
+							border += k;
 						}
 						if(m == n || m + n == Constant.SIZE.WIDTH_IMG - 1) {
-							cross += mat.get(n*(45 / Constant.SIZE.WIDTH_IMG) + j, m*(45 / Constant.SIZE.HEIGHT_IMG) + i)[0];							
+							cross += k;							
 						}
 						if(m == Constant.SIZE.HEIGHT_IMG / 2 || n == Constant.SIZE.WIDTH_IMG / 2) {
-							plus += mat.get(n*(45 / Constant.SIZE.WIDTH_IMG) + j, m*(45 / Constant.SIZE.HEIGHT_IMG) + i)[0];														
+							plus += k;														
 						}
 					}
 				}
-				result[index] = sumArea*Math.pow(index, 2);
+				result[index] = sumArea;
 				index++;
 				sumArea = 0;
 			}
 		}
-		result[index] = border*Math.pow(index, 2);
+		result[index] = border;
 		index++;
-		result[index] = cross*Math.pow(index, 2);
+		result[index] = cross;
 		index++;
-		result[index] = plus*Math.pow(index, 2);
+		result[index] = plus;
 		index++;
 		
 		return result;
 	}
-	
+ 	
 	public void imageToInstance(Instances ins, String label) {
 		double[] arr = imageToArray();
 		int size = arr.length;

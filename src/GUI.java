@@ -256,7 +256,7 @@ public class GUI extends JFrame {
 
 		BufferedImage imgProcess = null;
 		try {
-			imgProcess = ImageIO.read(new File("process/result.jpg"));
+			imgProcess = ImageIO.read(new File(Constant.PATH.RESULT));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

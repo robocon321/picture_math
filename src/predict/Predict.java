@@ -21,12 +21,9 @@ public class Predict {
 		
 		// Add Attribute
 		ArrayList<Attribute> attrs = new ArrayList<>();
-		for(int i=0; i < Constant.SIZE.HEIGHT_IMG * Constant.SIZE.WIDTH_IMG; i++) {
+		for(int i=0; i < Constant.SIZE.HEIGHT_IMG * Constant.SIZE.WIDTH_IMG + 3; i++) {
 			attrs.add(new Attribute("attr"+i));
 		}
-		attrs.add(new Attribute("border"));
-		attrs.add(new Attribute("cross"));
-		attrs.add(new Attribute("plus"));
 		
 		ArrayList<String> classValues = new ArrayList<>();
 		
