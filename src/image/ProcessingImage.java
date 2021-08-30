@@ -207,7 +207,6 @@ public class ProcessingImage {
 		        }
 	        }
 	        
-	        Imgproc.resize(result, result, new Size(45, 45));
 	        Core.bitwise_not(result, result);
 	        Imgcodecs.imwrite(nameFile, result);
 		} catch (InterruptedException e) {

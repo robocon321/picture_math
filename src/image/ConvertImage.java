@@ -42,9 +42,9 @@ public class ConvertImage {
 		
 		for(int m=0; m < Constant.SIZE.HEIGHT_IMG; m++) {
 			for(int n=0; n < Constant.SIZE.WIDTH_IMG; n++) {
-				for(int i=0; i < 45 / Constant.SIZE.HEIGHT_IMG; i++) {
-					for(int j=0; j < 45 / Constant.SIZE.WIDTH_IMG; j++) {
-						double k = mat.get(n*(45 / Constant.SIZE.WIDTH_IMG) + j, m*(45 / Constant.SIZE.HEIGHT_IMG) + i)[0] == 1 ? 0 : 1;
+				for(int i=0; i < mat.rows() / Constant.SIZE.HEIGHT_IMG; i++) {
+					for(int j=0; j < mat.cols() / Constant.SIZE.WIDTH_IMG; j++) {
+						double k = mat.get(n*(mat.cols() / Constant.SIZE.WIDTH_IMG) + j, m*(mat.rows() / Constant.SIZE.HEIGHT_IMG) + i)[0] == 1 ? 0 : 1;
 						sumArea += k;
 						if(m == 0 || n == 0 || m == Constant.SIZE.HEIGHT_IMG - 1 || n == Constant.SIZE.WIDTH_IMG - 1) {
 							border += k;
@@ -57,16 +57,16 @@ public class ConvertImage {
 						}
 					}
 				}
-				result[index] = sumArea;
+				result[index] = sumArea * 45 / mat.rows();
 				index++;
 				sumArea = 0;
 			}
 		}
-		result[index] = border;
+		result[index] = border * 45 / mat.rows();
 		index++;
-		result[index] = cross;
+		result[index] = cross * 45 / mat.rows();
 		index++;
-		result[index] = plus;
+		result[index] = plus * 45 / mat.rows();
 		index++;
 		
 		return result;
