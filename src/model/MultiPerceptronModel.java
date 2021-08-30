@@ -1,13 +1,14 @@
 package model;
 import utils.Constant;
 import weka.classifiers.functions.MultilayerPerceptron;
+import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 
 public class MultiPerceptronModel implements Model{
 
 	private Object buildModel(Instances instances) {		
-		MultilayerPerceptron model = new MultilayerPerceptron();
+		J48 model = new J48();
 		try {
 			model.buildClassifier(instances);
 		} catch (Exception e) {

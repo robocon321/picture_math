@@ -30,7 +30,7 @@ public class ConvertImage {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		Mat mat = Imgcodecs.imread(path);
 		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_RGB2GRAY);
-		Imgproc.threshold(mat, mat, 100, 1, Imgproc.THRESH_BINARY);
+		Imgproc.threshold(mat, mat, 200, 1, Imgproc.THRESH_BINARY);
 		
 		double[] result = new double[Constant.SIZE.HEIGHT_IMG * Constant.SIZE.WIDTH_IMG + 3];
 		int index = 0;
@@ -38,6 +38,7 @@ public class ConvertImage {
 		int border = 0;
 		int cross = 0;
 		int plus = 0;
+
 		
 		for(int m=0; m < Constant.SIZE.HEIGHT_IMG; m++) {
 			for(int n=0; n < Constant.SIZE.WIDTH_IMG; n++) {

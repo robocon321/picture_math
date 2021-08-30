@@ -34,7 +34,7 @@ public class ProcessingImage {
     
     public ProcessingImage buildRangeImage(){
 //        Core.inRange(mat, new Scalar(109, 81, 37), new Scalar(163, 198, 164), mat);
-    	Core.inRange(mat, new Scalar(0, 0, 0), new Scalar(100, 100, 100), mat);
+    	Core.inRange(mat, new Scalar(0, 0, 0), new Scalar(200, 200, 200), mat);
         return this;
     }
 
@@ -73,7 +73,7 @@ public class ProcessingImage {
             }
         }
         
-        // Resize bound
+        // Align center bound
         List<Rect> temp = new ArrayList<>();
         for(Rect r : rects) {
         	Dimension d = getDimension(r);
@@ -81,9 +81,11 @@ public class ProcessingImage {
         	int h = d.height;
         	if (w / h > 3) {
         		temp.add(new Rect(new Point(r.tl().x, r.tl().y + h/2 - w/2), new Point(r.br().x, r.br().y - h/2 + w/2)));
-        	} else if(h / w > 3) {
-        		temp.add(new Rect(new Point(r.tl().x + w/2 - h/4, r.tl().y), new Point(r.br().x - w/2 + h/4, r.br().y)));
-        	} else {
+        	} 
+//        	else if(h / w > 3) {
+//        		temp.add(new Rect(new Point(r.tl().x + w/2 - h/4, r.tl().y), new Point(r.br().x - w/2 + h/4, r.br().y)));
+//        	} 
+        	else {
         		temp.add(r);
         	}
         }
@@ -103,16 +105,18 @@ public class ProcessingImage {
         	Rect r1 = temp.get((int) p.x);
         	Rect r2 = temp.get((int) p.y);
         	
-        	double xTL = r1.tl().x - r2.tl().x < 0 ? r1.tl().x : r2.tl().x;
-        	double yTL = r1.tl().y - r2.tl().y < 0 ? r1.tl().y : r2.tl().y;
-        	double xBR = r1.br().x - r2.br().x > 0 ? r1.br().x : r2.br().x;
-        	double yBR = r1.br().y - r2.br().y > 0 ? r1.br().y : r2.br().y;
+        	double xTL = r1.tl().x < r2.tl().x ? r1.tl().x : r2.tl().x;
+        	double yTL = r1.tl().y < r2.tl().y ? r1.tl().y : r2.tl().y;
+        	double xBR = r1.br().x >= r2.br().x ? r1.br().x : r2.br().x;
+        	double yBR = r1.br().y >= r2.br().y ? r1.br().y : r2.br().y;
         	
         	results.add(new Rect(new Point(xTL, yTL), new Point(xBR, yBR)));
         	
         	results.remove(r1);
         	results.remove(r2);
         }
+        
+        // Sort 
         Collections.sort(results, new Comparator<Rect>() {
         	@Override
         	public int compare(Rect o1, Rect o2) {
@@ -182,10 +186,30 @@ public class ProcessingImage {
     	try {
 			Thread.sleep(100);
 	        Mat cropImage = mat.submat(rect);
-	        Mat resizeImage = new Mat();
-	        Imgproc.resize(cropImage, resizeImage, new Size(45, 45));
-	        Core.bitwise_not(resizeImage, resizeImage);
-	        Imgcodecs.imwrite(nameFile, resizeImage);
+
+	        int width = cropImage.cols();
+	        int height = cropImage.rows();
+	        
+	        Mat result;
+	        if(width > height) {
+	        	result = Mat.zeros(width, width, CvType.CV_8UC1);
+		        for (int i = 0 ; i < height ; i++) {
+		        	for ( int j = 0 ; j < width ; j++) {
+		        		result.put(i + (width/2 - height/2), j, cropImage.get(i, j));
+		        	}
+		        }
+	        } else {
+	        	result = Mat.zeros(height, height, CvType.CV_8UC1);	        	
+		        for (int i = 0 ; i < height ; i++) {
+		        	for ( int j = 0 ; j < width ; j++) {
+		        		result.put(i, j + (height/2 - width/2), cropImage.get(i, j));
+		        	}
+		        }
+	        }
+	        
+	        Imgproc.resize(result, result, new Size(45, 45));
+	        Core.bitwise_not(result, result);
+	        Imgcodecs.imwrite(nameFile, result);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
