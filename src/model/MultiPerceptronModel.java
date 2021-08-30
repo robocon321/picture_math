@@ -8,7 +8,7 @@ import weka.core.SerializationHelper;
 public class MultiPerceptronModel implements Model{
 
 	private Object buildModel(Instances instances) {		
-		J48 model = new J48();
+		MultilayerPerceptron model = new MultilayerPerceptron();
 		try {
 			model.buildClassifier(instances);
 		} catch (Exception e) {
