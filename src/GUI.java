@@ -3,8 +3,11 @@ import org.opencv.imgproc.Imgproc;
 
 import dataset.BuildDataset;
 import image.ProcessingImage;
+import model.J48Model;
 import model.Model;
 import model.MultiPerceptronModel;
+import model.NaiveBayesModel;
+import model.SVMModel;
 import predict.Predict;
 import utils.Constant;
 import weka.classifiers.Classifier;
@@ -168,7 +171,7 @@ public class GUI extends JFrame {
 		lblAlgo.setFont(fontAttribute);
 		pnGrid.add(lblAlgo);
 
-		String[] algos = new String[] { "Multi-layer Perceptron", "SimpleLogistic", "SVM", "k-Nearest Neighbor" };
+		String[] algos = new String[] { "Multi-layer Perceptron", "Naive Bayes", "SVM", "J48"};
 		cbb = new JComboBox<>(algos);
 		cbb.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		pnGrid.add(cbb);
@@ -366,15 +369,21 @@ public class GUI extends JFrame {
 			break;
 		}
 		case 1: {
-			txtConsole.setText(txtConsole.getText() + "Nothing. \n");
+			modelPath = Constant.MODEL.BAYES;
+			evalPath = Constant.EVALUATION.BAYES;
+			model = new NaiveBayesModel();
 			break;
 		}
 		case 2: {
-			txtConsole.setText(txtConsole.getText() + "Nothing. \n");
+			modelPath = Constant.MODEL.SVM;
+			evalPath = Constant.EVALUATION.SVM;
+			model = new SVMModel();
 			break;
 		}
 		case 3: {
-			txtConsole.setText(txtConsole.getText() + "Nothing. \n");
+			modelPath = Constant.MODEL.J48;
+			evalPath = Constant.EVALUATION.J48;
+			model = new J48Model();
 			break;
 		}
 		default:
@@ -385,7 +394,7 @@ public class GUI extends JFrame {
 		File fileModel = new File(modelPath);
 		if (!fileModel.exists()) {
 			txtConsole
-					.setText(txtConsole.getText() + "You don't have perceptron model file. \nBuiding...\n");
+					.setText(txtConsole.getText() + "You don't have "+modelPath+" file. \nBuiding...\n");
 			start = System.currentTimeMillis();
 			model.excute(trainIns);
 			end = System.currentTimeMillis();
@@ -399,12 +408,12 @@ public class GUI extends JFrame {
 		File fileEvaluation = new File(evalPath);
 		if (!fileEvaluation.exists()) {
 			txtConsole.setText(
-					txtConsole.getText() + "You don't have perceptron evaluation file. \nBuiding...\n");
+					txtConsole.getText() + "You don't have "+evalPath+" evaluation file. \nBuiding...\n");
 			start = System.currentTimeMillis();
 			try {
 				Evaluation evalSave = new Evaluation(trainIns);
-				evalSave.evaluateModel((Classifier) helper.read(Constant.MODEL.PERCEPTRON), testIns);
-				helper.write(Constant.EVALUATION.PERCEPTRON, evalSave);
+				evalSave.evaluateModel((Classifier) helper.read(modelPath), testIns);
+				helper.write(evalPath, evalSave);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
@@ -414,7 +423,7 @@ public class GUI extends JFrame {
 		}
 
 		try {
-			evaluation = (Evaluation) helper.read(Constant.EVALUATION.PERCEPTRON);
+			evaluation = (Evaluation) helper.read(evalPath);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
