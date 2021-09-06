@@ -1,6 +1,5 @@
 package model;
 
-
 import utils.Constant;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.functions.LibSVM;
@@ -8,8 +7,9 @@ import weka.core.Instances;
 import weka.core.SerializationHelper;
 
 public class SVMModel implements Model{
-	private Object buildModel(Instances instances) {		
+	private Object buildModel(Instances instances) {	
 		LibSVM model = new LibSVM();
+		
 		try {
 			model.buildClassifier(instances);
 		} catch (Exception e) {
